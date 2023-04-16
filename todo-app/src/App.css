@@ -1,0 +1,30 @@
+.App {
+  margin: 50px auto;
+  max-width: 500px;
+}
+
+h1 {
+  font-style: italic;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: underline;
+}
+
+h2 {
+  font-style: italic;
+  text-align: center;
+}
+
+input {
+  border: none;
+  outline-color: lightgray;
+}
+
+.todoLists {
+  display: flex;
+  justify-content: space-between;
+}
+
+.todoListName {
+  font-weight: bold;
+}

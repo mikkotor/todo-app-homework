@@ -1,0 +1,13 @@
+.vscode
+
+/TodoApi/.vs
+/TodoApi/bin
+/TodoApi/obj
+/TodoApi/TodoData.db
+/TodoApi/TodoData-log.db
+
+/TodoApiTests/bin
+/TodoApiTests/obj
+
+/todo-app/cypress/videos
+/todo-app/node_modules
