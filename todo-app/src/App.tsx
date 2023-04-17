@@ -9,12 +9,16 @@ function App() {
   const todoApi = new TodoApi();
   const [todoLists, setTodoLists] = useState<TodoList[]>([]);
   const [error, setError] = useState<string>("");
+  const logAndSetError = (error: any) => {
+    console.error(error.toString());
+    setError(error.toString());
+  }
 
   useEffect(() => {
     todoApi
       .getTodoListsAsync()
       .then((data) => setTodoLists(data))
-      .catch((error) => setError(error));
+      .catch((error) => logAndSetError(error));
     // eslint-disable-next-line
   }, []);
 
@@ -23,7 +27,7 @@ function App() {
     try {
       newTodoList.id = await todoApi.upsertTodoListAsync(newTodoList);
     } catch (error: any) {
-      setError(error);
+      logAndSetError(error);
       return;
     }
     let modified = [...todoLists];
@@ -41,7 +45,7 @@ function App() {
     try {
       if (databaseId !== 0) await todoApi.deleteTodoListAsync(databaseId);
     } catch (error: any) {
-      setError(error);
+      logAndSetError(error);
       return;
     }
     setTodoLists(modified);
@@ -54,7 +58,7 @@ function App() {
     try {
       await todoApi.upsertTodoListAsync(modified[parseInt(elementTree[0])]);
     } catch (error: any) {
-      setError(error);
+      logAndSetError(error);
       return;
     }
     setTodoLists(modified);
@@ -77,7 +81,7 @@ function App() {
     try {
       await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])]);
     } catch (error: any) {
-      setError(error);
+      logAndSetError(error);
       return;
     }
   }
@@ -107,7 +111,7 @@ function App() {
       try {
         await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])]);
       } catch (error: any) {
-        setError(error);
+        logAndSetError(error);
         return;
       }
       setTodoLists(modified);
@@ -123,7 +127,7 @@ function App() {
       try {
         await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])]);
       } catch (error: any) {
-        setError(error);
+        logAndSetError(error);
         return;
       }
       setTodoLists(modified);
@@ -139,7 +143,7 @@ function App() {
       try {
         await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])]);
       } catch (error: any) {
-        setError(error);
+        logAndSetError(error);
         return;
       }
       setTodoLists(modified);
@@ -155,7 +159,9 @@ function App() {
       <div className="App">
         <h1 style={{ color: "red" }}>Error occurred!</h1>
         <h2>{error}</h2>
-        <h3>Please verify that TodoApi is running and reachable in <code>{todoApi.apiUrl}</code></h3>
+        <h3>
+          Please verify that TodoApi is running and reachable in <code>{todoApi.apiUrl}</code>
+        </h3>
       </div>
     );
   } else {

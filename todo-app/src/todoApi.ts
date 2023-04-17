@@ -15,6 +15,7 @@ export class TodoApi {
   async getTodoListsAsync(): Promise<TodoList[]> {
     try {
       let response = await fetch(this.apiUrl);
+      if (!response.ok) throw new Error(`Failed to get todo lists`);
       let data = await response.json();
       this.replaceNullsWithEmptyString(data);
       return data;
@@ -29,7 +30,7 @@ export class TodoApi {
       if (modifiedList.id === 0) {
         return await this.postTodoListAsync(modifiedList);
       } else {
-        this.patchTodoListAsync(modifiedList);
+        await this.patchTodoListAsync(modifiedList);
         return modifiedList.id;
       }
     } catch (error) {
@@ -40,12 +41,13 @@ export class TodoApi {
 
   async deleteTodoListAsync(id: number) {
     try {
-      await fetch(this.apiUrl + `?id=${id}`, {
+      let response = await fetch(this.apiUrl + `?id=${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json; charset=UTF-8",
         },
       });
+      if (!response.ok) throw new Error(`Failed to delete list with id ${id}`);
     } catch (error) {
       console.error(error);
       throw error;
@@ -54,24 +56,26 @@ export class TodoApi {
 
   private async patchTodoListAsync(modifiedList: TodoList) {
     this.replaceNullsWithEmptyString([modifiedList]);
-    await fetch(this.apiUrl, {
+    let response = await fetch(this.apiUrl, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json; charset=UTF-8",
       },
       body: JSON.stringify(modifiedList),
     });
+    if (!response.ok) throw new Error(`Failed to update list: ${JSON.stringify(modifiedList)}`);
   }
 
   private async postTodoListAsync(modifiedList: TodoList): Promise<number> {
     this.replaceNullsWithEmptyString([modifiedList]);
-    let result = await fetch(this.apiUrl, {
+    let response = await fetch(this.apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json; charset=UTF-8",
       },
       body: JSON.stringify(modifiedList),
     });
-    return parseInt(await result.text());
+    if (response.ok) return parseInt(await response.text());
+    else throw new Error("Failed to add a new todo list");
   }
 }

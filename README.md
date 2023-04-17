@@ -34,10 +34,11 @@
 ### TodoApi
 
 * `dotnet watch` to run, `dotnet test` to run tests
-* Requires ports 5153 and 7105 free on your machine
+* Requires ports `5153` and `7105` free on your machine
 * Swagger portal runs in https://localhost:7105/swagger/index.html
 
 ### todo-api
 
-* `npm run start` to launch the React app, `npm run cypress:e2e` to run automated tests (Or if you prefer, `npm run cypress:open` to run tests in different browsers)
-* Requires port 3000 to be free on your machine
+* `npm run start` to launch the React app
+* After server started, type `npm run cypress:e2e` to run automated tests (Or if you prefer, `npm run cypress:open` to run tests in different browsers using Cypress UI)
+* Requires port `3000` to be free on your machine
