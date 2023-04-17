@@ -8,38 +8,56 @@ import { v4 as uuidv4 } from "uuid";
 function App() {
   const todoApi = new TodoApi();
   const [todoLists, setTodoLists] = useState<TodoList[]>([]);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    todoApi.getTodoListsAsync().then((data) => setTodoLists(data));
+    todoApi
+      .getTodoListsAsync()
+      .then((data) => setTodoLists(data))
+      .catch((error) => setError(error));
     // eslint-disable-next-line
   }, []);
 
   async function onAddNewListClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     let newTodoList = { name: "New list", id: 0, todos: [{ description: "First item", isDone: false }] };
-    newTodoList.id = await todoApi.upsertTodoListAsync(newTodoList);
+    try {
+      newTodoList.id = await todoApi.upsertTodoListAsync(newTodoList);
+    } catch (error: any) {
+      setError(error);
+      return;
+    }
     let modified = [...todoLists];
     modified.push(newTodoList);
     setTodoLists(modified);
   }
 
   async function onDeleteListClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-    console.log(event.currentTarget.parentElement?.parentElement);
     if (event.currentTarget.parentElement?.parentElement?.id === undefined) return;
     let databaseId: number = parseInt(event.currentTarget.parentElement.parentElement.id);
     let modified = [...todoLists];
     var found = modified.findIndex((i) => i.id === databaseId);
     if (found === -1) return;
     modified.splice(found, 1);
+    try {
+      if (databaseId !== 0) await todoApi.deleteTodoListAsync(databaseId);
+    } catch (error: any) {
+      setError(error);
+      return;
+    }
     setTodoLists(modified);
-    if (databaseId !== 0) await todoApi.deleteTodoListAsync(databaseId);
   }
 
   async function onItemDoneChange(event: React.ChangeEvent<HTMLInputElement>) {
     let elementTree = event.target.id.split(":");
     let modified = [...todoLists];
     modified[parseInt(elementTree[0])].todos[parseInt(elementTree[1])].isDone = event.target.checked;
+    try {
+      await todoApi.upsertTodoListAsync(modified[parseInt(elementTree[0])]);
+    } catch (error: any) {
+      setError(error);
+      return;
+    }
     setTodoLists(modified);
-    await todoApi.upsertTodoListAsync(modified[parseInt(elementTree[0])]);
   }
 
   function onTextChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -56,7 +74,12 @@ function App() {
 
   async function onTextFocusOut(event: React.FocusEvent<HTMLInputElement, Element>) {
     let elementTree = event.target.id.split(":");
-    await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])]);
+    try {
+      await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])]);
+    } catch (error: any) {
+      setError(error);
+      return;
+    }
   }
 
   async function onTodoItemKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -81,8 +104,13 @@ function App() {
       let modified = [...todoLists];
       var newtodo: Todo = { description: "", isDone: false };
       modified[parseInt(elementTree[0])].todos.splice(parseInt(elementTree[1]) + 1, 0, newtodo);
+      try {
+        await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])]);
+      } catch (error: any) {
+        setError(error);
+        return;
+      }
       setTodoLists(modified);
-      await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])]);
       setTimeout(() => {
         let itemToFocus = `${elementTree[0]}:${parseInt(elementTree[1]) + 1}:text`;
         document.getElementById(itemToFocus)?.focus();
@@ -92,8 +120,13 @@ function App() {
     async function onKeyBackspace() {
       let modified = [...todoLists];
       modified[parseInt(elementTree[0])].todos.splice(parseInt(elementTree[1]), 1);
+      try {
+        await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])]);
+      } catch (error: any) {
+        setError(error);
+        return;
+      }
       setTodoLists(modified);
-      await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])]);
       setTimeout(() => {
         let itemToFocus = `${elementTree[0]}:${parseInt(elementTree[1]) - 1}:text`;
         document.getElementById(itemToFocus)?.focus();
@@ -103,8 +136,13 @@ function App() {
     async function onKeyDelete() {
       let modified = [...todoLists];
       modified[parseInt(elementTree[0])].todos.splice(parseInt(elementTree[1]), 1);
+      try {
+        await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])]);
+      } catch (error: any) {
+        setError(error);
+        return;
+      }
       setTodoLists(modified);
-      await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])]);
       setTimeout(() => {
         let itemToFocus = `${elementTree[0]}:${parseInt(elementTree[1])}:text`;
         document.getElementById(itemToFocus)?.focus();
@@ -112,59 +150,69 @@ function App() {
     }
   }
 
-  return (
-    <div className="App">
-      <h1>Your Todos:</h1>
-      <ul>
-        {todoLists.map((todoList, listIndex) => (
-          <li key={uuidv4()} id={todoList.id.toString()}>
-            <div className="todoLists">
-              <input
-                className="todoListName"
-                type="text"
-                size={54}
-                id={`${listIndex.toString()}:text`}
-                defaultValue={todoList.name}
-                onChange={onTextChange}
-                onBlur={onTextFocusOut}
-              />
-              <button onClick={onDeleteListClick} title="Delete this list">
-                -
-              </button>
-            </div>
-            <ul>
-              {todoList.todos.map((todoItem, itemIndex) => (
-                <li key={uuidv4()}>
-                  <div className="todoItems">
-                    <input
-                      type="checkbox"
-                      id={`${listIndex.toString()}:${itemIndex.toString()}:checkbox`}
-                      checked={todoItem.isDone}
-                      onChange={onItemDoneChange}
-                    />
-                    <input
-                      style={{ textDecorationLine: todoItem.isDone ? "line-through" : "" }}
-                      type="text"
-                      size={50}
-                      id={`${listIndex.toString()}:${itemIndex.toString()}:text`}
-                      defaultValue={todoItem.description}
-                      onKeyDown={onTodoItemKeyDown}
-                      onChange={onTextChange}
-                      onBlur={onTextFocusOut}
-                    />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
-        <br />
-        <button id="addNewListBtn" onClick={onAddNewListClick} title="Add new list">
-          Add New List
-        </button>
-      </ul>
-    </div>
-  );
+  if (error !== "") {
+    return (
+      <div className="App">
+        <h1 style={{ color: "red" }}>Error occurred!</h1>
+        <h2>{error}</h2>
+        <h3>Please verify that TodoApi is running and reachable in <code>{todoApi.apiUrl}</code></h3>
+      </div>
+    );
+  } else {
+    return (
+      <div className="App">
+        <h1>Your Todos:</h1>
+        <ul>
+          {todoLists.map((todoList, listIndex) => (
+            <li key={uuidv4()} id={todoList.id.toString()}>
+              <div className="todoLists">
+                <input
+                  className="todoListName"
+                  type="text"
+                  size={54}
+                  id={`${listIndex.toString()}:text`}
+                  defaultValue={todoList.name}
+                  onChange={onTextChange}
+                  onBlur={onTextFocusOut}
+                />
+                <button onClick={onDeleteListClick} title="Delete this list">
+                  -
+                </button>
+              </div>
+              <ul>
+                {todoList.todos.map((todoItem, itemIndex) => (
+                  <li key={uuidv4()}>
+                    <div className="todoItems">
+                      <input
+                        type="checkbox"
+                        id={`${listIndex.toString()}:${itemIndex.toString()}:checkbox`}
+                        checked={todoItem.isDone}
+                        onChange={onItemDoneChange}
+                      />
+                      <input
+                        style={{ textDecorationLine: todoItem.isDone ? "line-through" : "" }}
+                        type="text"
+                        size={50}
+                        id={`${listIndex.toString()}:${itemIndex.toString()}:text`}
+                        defaultValue={todoItem.description}
+                        onKeyDown={onTodoItemKeyDown}
+                        onChange={onTextChange}
+                        onBlur={onTextFocusOut}
+                      />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+          <br />
+          <button id="addNewListBtn" onClick={onAddNewListClick} title="Add new list">
+            Add New List
+          </button>
+        </ul>
+      </div>
+    );
+  }
 }
 
 export default App;

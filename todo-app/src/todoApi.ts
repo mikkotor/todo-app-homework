@@ -1,7 +1,7 @@
 import { TodoList } from "./todoTypes";
 
 export class TodoApi {
-  private apiUrl: string = process.env.REACT_APP_TODO_API_URL as string;
+  public readonly apiUrl: string = process.env.REACT_APP_TODO_API_URL as string;
 
   private replaceNullsWithEmptyString(data: TodoList[]) {
     data.forEach((todoList) => {
@@ -13,28 +13,43 @@ export class TodoApi {
   }
 
   async getTodoListsAsync(): Promise<TodoList[]> {
-    let response = await fetch(this.apiUrl);
-    let data = await response.json();
-    this.replaceNullsWithEmptyString(data);
-    return data;
+    try {
+      let response = await fetch(this.apiUrl);
+      let data = await response.json();
+      this.replaceNullsWithEmptyString(data);
+      return data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
 
   async upsertTodoListAsync(modifiedList: TodoList): Promise<number> {
-    if (modifiedList.id === 0) {
-      return await this.postTodoListAsync(modifiedList);
-    } else {
-      this.patchTodoListAsync(modifiedList);
-      return modifiedList.id;
+    try {
+      if (modifiedList.id === 0) {
+        return await this.postTodoListAsync(modifiedList);
+      } else {
+        this.patchTodoListAsync(modifiedList);
+        return modifiedList.id;
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
   }
 
   async deleteTodoListAsync(id: number) {
-    await fetch(this.apiUrl + `?id=${id}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json; charset=UTF-8",
-      },
-    });
+    try {
+      await fetch(this.apiUrl + `?id=${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8",
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
 
   private async patchTodoListAsync(modifiedList: TodoList) {
