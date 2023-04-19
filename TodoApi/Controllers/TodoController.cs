@@ -39,7 +39,7 @@ public class TodoController : ControllerBase
     {
         if (todos.Id != 0) todos.Id = 0;
         var newTodoListId = _db.InsertTodoList(todos);
-        _logger.LogInformation($"New todo list added with id {newTodoListId}");
+        _logger.LogInformation($"New todo list ADDED with id {newTodoListId}");
         return new OkObjectResult(newTodoListId);
     }
 
@@ -52,7 +52,12 @@ public class TodoController : ControllerBase
     public StatusCodeResult Patch(TodoList todos)
     {
         var result = _db.UpdateTodoList(todos);
-        if (result) return Ok();
+        if (result)
+        {
+            _logger.LogInformation($"Todo list UPDATED with id {todos.Id}");
+            return Ok();
+        }
+        _logger.LogInformation($"Todo list with id {todos.Id} NOT FOUND");
         return new StatusCodeResult(StatusCodes.Status404NotFound);
     }
 
@@ -65,7 +70,12 @@ public class TodoController : ControllerBase
     public StatusCodeResult Delete(int id)
     {
         var result = _db.DeleteTodos(id);
-        if (result) return Ok();
+        if (result)
+        {
+            _logger.LogInformation($"Todo list DELETED with id {id}");
+            return Ok();
+        }
+        _logger.LogInformation($"Todo list with id {id} NOT FOUND");
         return new StatusCodeResult(StatusCodes.Status404NotFound);
     }
 }
