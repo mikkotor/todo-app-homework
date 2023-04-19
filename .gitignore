@@ -9,5 +9,6 @@
 /TodoApiTests/bin
 /TodoApiTests/obj
 
-/todo-app/cypress/videos
 /todo-app/node_modules
+/todo-app/cypress/videos
+/todo-app/cypress/screenshots
