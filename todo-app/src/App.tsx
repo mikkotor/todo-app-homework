@@ -5,8 +5,9 @@ import { TodoList, Todo } from "./todoTypes";
 import { TodoApi } from "./todoApi";
 import { v4 as uuidv4 } from "uuid";
 
+const todoApi = new TodoApi();
+
 function App() {
-  const todoApi = new TodoApi();
   const [todoLists, setTodoLists] = useState<TodoList[]>([]);
   const [error, setError] = useState<string>("");
   const logAndSetError = (error: any) => {
