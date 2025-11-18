@@ -33,7 +33,7 @@ public interface IDatabaseService
     bool DeleteTodos(int todoId);
 }
 
-public class LiteDbService : IDatabaseService, IDisposable
+public sealed class LiteDbService : IDatabaseService, IDisposable
 {
     private readonly ILogger<LiteDbService> _logger;
     private readonly LiteDatabase _db;
@@ -52,9 +52,9 @@ public class LiteDbService : IDatabaseService, IDisposable
         try
         {
             var result = _collection.Query();
-            return result != null ? result.ToEnumerable() : Array.Empty<TodoList>();
+            return result != null ? result.ToEnumerable() : [];
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to get any todo lists from database");
             throw;
@@ -84,7 +84,7 @@ public class LiteDbService : IDatabaseService, IDisposable
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Failed to update todo list with id {todos.Id}");
+            _logger.LogError(ex, "Failed to update todo list with id {Id}", todos.Id);
             throw;
         }
     }
@@ -97,7 +97,7 @@ public class LiteDbService : IDatabaseService, IDisposable
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Failed to delete todo list with id {todoId}");
+            _logger.LogError(ex, "Failed to delete todo list with id {Id}", todoId);
             throw;
         }
     }

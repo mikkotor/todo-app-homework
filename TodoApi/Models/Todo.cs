@@ -1,25 +1,35 @@
 namespace TodoApi.Models;
 
-public class Todo
+/// <summary>
+/// Represents a todo item with a description and completion status.
+/// </summary>
+public record Todo
 {
-    public Todo()
-    {
-        this.Description = "";
-    }
-
-    public string Description { get; set; }
+    /// <summary>
+    /// Description of the todo item.
+    /// </summary>
+    public string Description { get; set; } = "";
+    /// <summary>
+    /// Indicates whether the todo item is completed.
+    /// </summary>
     public bool IsDone { get; set; }
 }
 
-public class TodoList
+/// <summary>
+/// Represents a list of todo items.
+/// </summary>
+public record TodoList
 {
-    public TodoList()
-    {
-        this.Name = "";
-        this.Todos = new List<Todo>();
-    }
-
+    /// <summary>
+    /// Unique identifier for the todo list.
+    /// </summary>
     public int Id { get; set; }
-    public string Name { get; set; }
-    public List<Todo>? Todos { get; set; }
+    /// <summary>
+    /// Name of the todo list.
+    /// </summary>
+    public string Name { get; set; } = "";
+    /// <summary>
+    /// Collection of todo items in the list.
+    /// </summary>
+    public List<Todo>? Todos { get; set; } = [];
 }

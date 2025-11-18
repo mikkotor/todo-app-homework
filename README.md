@@ -10,7 +10,7 @@
 
 ### TodoApi
 
-* Implemented in .NET 6, as an ASP.NET API
+* Implemented in .NET 8, as an ASP.NET API
 * Database of choice is [LiteDB](https://www.litedb.org/)
 * The API also has Swagger endpoint running providing a simple OpenAPI spec frontend for quick interaction with the API and underlying DB
 * Tests implemented using [xUnit](https://xunit.net/) and [Moq](https://github.com/Moq)
