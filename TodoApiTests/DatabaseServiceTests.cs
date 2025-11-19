@@ -5,11 +5,11 @@ using TodoApi.Services;
 
 namespace TodoApiTests;
 
-public class DatabaseServiceTests : IDisposable
+public sealed class DatabaseServiceTests : IDisposable
 {
     private readonly Mock<ILogger<LiteDbService>> _mockLogger = new();
     private readonly LiteDbService? _db;
-    private readonly List<TodoList> _todoList = new();
+    private readonly List<TodoList> _todoList = [];
 
     /// <summary>
     /// Somewhat ugly test written early on to test-drive LiteDB
@@ -32,11 +32,11 @@ public class DatabaseServiceTests : IDisposable
         {
             Id = 0,
             Name = "New list",
-            Todos = new List<Todo>
-            {
+            Todos =
+            [
                 new Todo { Description = "Todo 1", IsDone = true },
                 new Todo { Description = "Todo 2", IsDone = false }
-            }
+            ]
         });
     }
 
@@ -61,11 +61,11 @@ public class DatabaseServiceTests : IDisposable
         {
             Id = 0,
             Name = "New list",
-            Todos = new List<Todo>
-            {
+            Todos =
+            [
                 new Todo { Description = "Todo 1", IsDone = true },
                 new Todo { Description = "Todo 2", IsDone = false }
-            }
+            ]
         });
 
         // Insert another list, make sure id is correct
@@ -78,7 +78,7 @@ public class DatabaseServiceTests : IDisposable
 
         // Modify one list, update and make sure it succeeds
         _todoList[1].Name = "New name for second list";
-        _todoList[1].Todos[1].IsDone = true;
+        _todoList[1].Todos![1].IsDone = true;
         var updateResult = _db.UpdateTodoList(_todoList[1]);
         Assert.True(updateResult);
 

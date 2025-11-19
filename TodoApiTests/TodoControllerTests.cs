@@ -20,7 +20,7 @@ public class TodoControllerTests
         var result = controller.Get();
 
         Assert.Empty(result);
-        Assert.Equal(1, mockLogger.Invocations.Count);
+        Assert.Single(mockLogger.Invocations);
     }
 
     [Fact]
@@ -32,11 +32,11 @@ public class TodoControllerTests
             {
                 Id = 1,
                 Name = "New list",
-                Todos = new List<Todo>
-                {
+                Todos =
+                [
                     new Todo { Description = "Todo 1", IsDone = true },
                     new Todo { Description = "Todo 2", IsDone = false }
-                }
+                ]
             }
         };
         var mockLogger = new Mock<ILogger<TodoController>>();
@@ -47,7 +47,7 @@ public class TodoControllerTests
         var result = controller.Get();
 
         Assert.NotEmpty(result);
-        Assert.Equal(1, mockLogger.Invocations.Count);
+        Assert.Single(mockLogger.Invocations);
     }
 
     [Fact]
@@ -65,11 +65,11 @@ public class TodoControllerTests
         {
             Id = 2345,
             Name = "New list",
-            Todos = new List<Todo>
-            {
+            Todos =
+            [
                 new Todo { Description = "Todo 1", IsDone = true },
                 new Todo { Description = "Todo 2", IsDone = false }
-            }
+            ]
         });
 
         Assert.Equal(1, result.Value);
@@ -89,11 +89,11 @@ public class TodoControllerTests
         {
             Id = 2345,
             Name = "New list",
-            Todos = new List<Todo>
-            {
+            Todos =
+            [
                 new Todo { Description = "Todo 1", IsDone = true },
                 new Todo { Description = "Todo 2", IsDone = false }
-            }
+            ]
         });
 
         Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
@@ -112,11 +112,11 @@ public class TodoControllerTests
         {
             Id = 2345,
             Name = "New list",
-            Todos = new List<Todo>
-            {
+            Todos =
+            [
                 new Todo { Description = "Todo 1", IsDone = true },
                 new Todo { Description = "Todo 2", IsDone = false }
-            }
+            ]
         });
 
         Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);

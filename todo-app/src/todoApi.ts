@@ -19,7 +19,7 @@ export class TodoApi {
       let data = await response.json();
       this.replaceNullsWithEmptyString(data);
       return data;
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       throw error;
     }
@@ -33,7 +33,7 @@ export class TodoApi {
         await this.patchTodoListAsync(modifiedList);
         return modifiedList.id;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       throw error;
     }
@@ -48,7 +48,7 @@ export class TodoApi {
         },
       });
       if (!response.ok) throw new Error(`Failed to delete list with id ${id}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       throw error;
     }

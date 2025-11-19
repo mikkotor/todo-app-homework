@@ -16,11 +16,16 @@ function App() {
   };
 
   useEffect(() => {
-    todoApi
-      .getTodoListsAsync()
-      .then((data) => setTodoLists(data))
-      .catch((error) => logAndSetError(error));
-    // eslint-disable-next-line
+    const load = async () => {
+      try {
+        const data = await todoApi.getTodoListsAsync();
+        setTodoLists(data);
+      } catch (error) {
+        logAndSetError(error);
+      }
+    };
+
+    void load();
   }, []);
 
   async function onAddNewListClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
