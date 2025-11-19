@@ -13,7 +13,7 @@ function App() {
   const logAndSetError = (error: any) => {
     console.error(error.toString());
     setError(error.toString());
-  }
+  };
 
   useEffect(() => {
     todoApi

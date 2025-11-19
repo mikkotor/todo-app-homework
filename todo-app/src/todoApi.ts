@@ -1,7 +1,7 @@
 import { TodoList } from "./todoTypes";
 
 export class TodoApi {
-  public readonly apiUrl: string = process.env.REACT_APP_TODO_API_URL as string;
+  public readonly apiUrl: string = (import.meta.env.VITE_TODO_API_URL ?? "") as string;
 
   private replaceNullsWithEmptyString(data: TodoList[]) {
     data.forEach((todoList) => {
