@@ -28,3 +28,7 @@ input {
 .todoListName {
   font-weight: bold;
 }
+
+.todoItems {
+  display: flex;
+}
