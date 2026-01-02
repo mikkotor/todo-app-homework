@@ -10,7 +10,7 @@
 
 ### TodoApi
 
-* Implemented in .NET 8, as an ASP.NET API
+* Implemented in .NET 10, as an ASP.NET API
 * Database of choice is [LiteDB](https://www.litedb.org/)
 * The API also has Swagger endpoint running providing a simple OpenAPI spec frontend for quick interaction with the API and underlying DB
 * Tests implemented using [xUnit](https://xunit.net/) and [Moq](https://github.com/Moq)
@@ -25,7 +25,7 @@
 
 ## Dev machine requirements
 
-* .NET 6
+* .NET 10
 * Node.js v18
 * NPM v9
 
@@ -33,7 +33,7 @@
 
 ### TodoApi
 
-* `dotnet watch` to run, `dotnet test` to run tests
+* `dotnet run` to run project, `dotnet test` to run tests
 * Requires ports `5153` and `7105` free on your machine
 * Swagger portal runs in https://localhost:7105/swagger/index.html
 
