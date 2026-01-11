@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 // import logo from "./logo.svg";
-import { useAuth0 } from "@auth0/auth0-react";
+import { useAuth0, AuthorizationParams } from "@auth0/auth0-react";
 import LoginButton from "./LoginButton";
 import LogoutButton from "./LogoutButton";
 import Profile from "./Profile";
@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from "uuid";
 const todoApi = new TodoApi();
 
 function App() {
-  const { isAuthenticated, isLoading, error } = useAuth0();
+  const { isAuthenticated, isLoading, error, getAccessTokenSilently } = useAuth0();
   const [todoLists, setTodoLists] = useState<TodoList[]>([]);
   const [apiError, setApiError] = useState<string>("");
   const logAndSetError = (error: any) => {
@@ -23,14 +23,17 @@ function App() {
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await todoApi.getTodoListsAsync();
+        const token = await getAccessTokenSilently({
+          authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE as string } as AuthorizationParams,
+        });
+        const data = await todoApi.getTodoListsAsync(token);
         setTodoLists(data);
       } catch (apiError) {
         logAndSetError(apiError);
       }
     };
-    void load();
-  }, []);
+    if (!isLoading && isAuthenticated) void load();
+  }, [isAuthenticated, getAccessTokenSilently, isLoading]);
 
   if (isLoading) {
     return (
@@ -57,7 +60,12 @@ function App() {
   async function onAddNewListClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     let newTodoList: TodoList = { name: "New list", id: 0, todos: [{ description: "First item", isDone: false }] };
     try {
-      newTodoList.id = await todoApi.upsertTodoListAsync(newTodoList);
+      const token = isAuthenticated
+        ? await getAccessTokenSilently({
+            authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE as string } as AuthorizationParams,
+          })
+        : undefined;
+      newTodoList.id = await todoApi.upsertTodoListAsync(newTodoList, token);
     } catch (apiError: any) {
       logAndSetError(apiError);
       return;
@@ -75,7 +83,14 @@ function App() {
     if (found === -1) return;
     modified.splice(found, 1);
     try {
-      if (databaseId !== 0) await todoApi.deleteTodoListAsync(databaseId);
+      if (databaseId !== 0) {
+        const token = isAuthenticated
+          ? await getAccessTokenSilently({
+              authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE as string } as AuthorizationParams,
+            })
+          : undefined;
+        await todoApi.deleteTodoListAsync(databaseId, token);
+      }
     } catch (apiError: any) {
       logAndSetError(apiError);
       return;
@@ -88,7 +103,12 @@ function App() {
     let modified = [...todoLists];
     modified[parseInt(elementTree[0])].todos[parseInt(elementTree[1])].isDone = event.target.checked;
     try {
-      await todoApi.upsertTodoListAsync(modified[parseInt(elementTree[0])]);
+      const token = isAuthenticated
+        ? await getAccessTokenSilently({
+            authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE as string } as AuthorizationParams,
+          })
+        : undefined;
+      await todoApi.upsertTodoListAsync(modified[parseInt(elementTree[0])], token);
     } catch (apiError: any) {
       logAndSetError(apiError);
       return;
@@ -111,7 +131,12 @@ function App() {
   async function onTextFocusOut(event: React.FocusEvent<HTMLInputElement, Element>) {
     let elementTree = event.target.id.split(":");
     try {
-      await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])]);
+      const token = isAuthenticated
+        ? await getAccessTokenSilently({
+            authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE as string } as AuthorizationParams,
+          })
+        : undefined;
+      await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])], token);
     } catch (apiError: any) {
       logAndSetError(apiError);
       return;
@@ -141,7 +166,12 @@ function App() {
       var newtodo: Todo = { description: "", isDone: false };
       modified[parseInt(elementTree[0])].todos.splice(parseInt(elementTree[1]) + 1, 0, newtodo);
       try {
-        await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])]);
+        const token = isAuthenticated
+          ? await getAccessTokenSilently({
+              authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE as string } as AuthorizationParams,
+            })
+          : undefined;
+        await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])], token);
       } catch (apiError: any) {
         logAndSetError(apiError);
         return;
@@ -157,7 +187,12 @@ function App() {
       let modified = [...todoLists];
       modified[parseInt(elementTree[0])].todos.splice(parseInt(elementTree[1]), 1);
       try {
-        await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])]);
+        const token = isAuthenticated
+          ? await getAccessTokenSilently({
+              authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE as string } as AuthorizationParams,
+            })
+          : undefined;
+        await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])], token);
       } catch (apiError: any) {
         logAndSetError(apiError);
         return;
@@ -173,7 +208,12 @@ function App() {
       let modified = [...todoLists];
       modified[parseInt(elementTree[0])].todos.splice(parseInt(elementTree[1]), 1);
       try {
-        await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])]);
+        const token = isAuthenticated
+          ? await getAccessTokenSilently({
+              authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE as string } as AuthorizationParams,
+            })
+          : undefined;
+        await todoApi.upsertTodoListAsync(todoLists[parseInt(elementTree[0])], token);
       } catch (apiError: any) {
         logAndSetError(apiError);
         return;

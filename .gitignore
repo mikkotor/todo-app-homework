@@ -12,3 +12,6 @@
 /todo-app/node_modules
 /todo-app/cypress/videos
 /todo-app/cypress/screenshots
+todo-app/certs/localhost.crt
+todo-app/certs/localhost.key
+todo-app/certs/san.cnf

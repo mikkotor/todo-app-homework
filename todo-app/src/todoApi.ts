@@ -12,9 +12,24 @@ export class TodoApi {
     });
   }
 
-  async getTodoListsAsync(): Promise<TodoList[]> {
+  private callApi(
+    apiUrl: string,
+    method: string,
+    token?: string,
+    headers: Record<string, string> = {},
+    body?: BodyInit
+  ): Promise<Response> {
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    return fetch(apiUrl, {
+      method,
+      headers,
+      body,
+    });
+  }
+
+  async getTodoListsAsync(token?: string): Promise<TodoList[]> {
     try {
-      let response = await fetch(this.apiUrl);
+      let response = await this.callApi(this.apiUrl, "GET", token);
       if (!response.ok) throw new Error(`Failed to get todo lists`);
       let data = await response.json();
       this.replaceNullsWithEmptyString(data);
@@ -25,12 +40,12 @@ export class TodoApi {
     }
   }
 
-  async upsertTodoListAsync(modifiedList: TodoList): Promise<number> {
+  async upsertTodoListAsync(modifiedList: TodoList, token?: string): Promise<number> {
     try {
       if (modifiedList.id === 0) {
-        return await this.postTodoListAsync(modifiedList);
+        return await this.postTodoListAsync(modifiedList, token);
       } else {
-        await this.patchTodoListAsync(modifiedList);
+        await this.patchTodoListAsync(modifiedList, token);
         return modifiedList.id;
       }
     } catch (error: any) {
@@ -39,14 +54,9 @@ export class TodoApi {
     }
   }
 
-  async deleteTodoListAsync(id: number) {
+  async deleteTodoListAsync(id: number, token?: string) {
     try {
-      let response = await fetch(this.apiUrl + `?id=${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json; charset=UTF-8",
-        },
-      });
+      let response = await this.callApi(`${this.apiUrl}?id=${id}`, "DELETE", token);
       if (!response.ok) throw new Error(`Failed to delete list with id ${id}`);
     } catch (error: any) {
       console.error(error);
@@ -54,27 +64,27 @@ export class TodoApi {
     }
   }
 
-  private async patchTodoListAsync(modifiedList: TodoList) {
+  private async patchTodoListAsync(modifiedList: TodoList, token?: string) {
     this.replaceNullsWithEmptyString([modifiedList]);
-    let response = await fetch(this.apiUrl, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json; charset=UTF-8",
-      },
-      body: JSON.stringify(modifiedList),
-    });
+    let response = await this.callApi(
+      this.apiUrl,
+      "PATCH",
+      token,
+      { "Content-Type": "application/json; charset=UTF-8" },
+      JSON.stringify(modifiedList)
+    );
     if (!response.ok) throw new Error(`Failed to update list: ${JSON.stringify(modifiedList)}`);
   }
 
-  private async postTodoListAsync(modifiedList: TodoList): Promise<number> {
+  private async postTodoListAsync(modifiedList: TodoList, token?: string): Promise<number> {
     this.replaceNullsWithEmptyString([modifiedList]);
-    let response = await fetch(this.apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=UTF-8",
-      },
-      body: JSON.stringify(modifiedList),
-    });
+    let response = await this.callApi(
+      this.apiUrl,
+      "POST",
+      token,
+      { "Content-Type": "application/json; charset=UTF-8" },
+      JSON.stringify(modifiedList)
+    );
     if (response.ok) return parseInt(await response.text());
     else throw new Error("Failed to add a new todo list");
   }

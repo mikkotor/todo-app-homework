@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using TodoApi.Models;
 using TodoApi.Services;
 
@@ -14,6 +15,7 @@ namespace TodoApi.Controllers;
 /// <param name="db">Database service.</param>
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class TodoController(ILogger<TodoController> logger, IDatabaseService db) : ControllerBase
 {
     /// <summary>

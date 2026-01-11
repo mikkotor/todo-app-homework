@@ -1,5 +1,6 @@
 using System.Reflection;
 using TodoApi.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,14 +15,32 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddSingleton<IDatabaseService, LiteDbService>();
 
+// Load Auth0 settings
+var auth0Section = builder.Configuration.GetSection("Auth0");
+var auth0Domain = auth0Section.GetValue<string>("Domain");
+var auth0Audience = auth0Section.GetValue<string>("Audience");
+
+// Configure authentication using JWT Bearer (Auth0)
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+    .AddJwtBearer(options =>
+    {
+        options.Authority = $"https://{auth0Domain}/";
+        options.Audience = auth0Audience;
+        options.RequireHttpsMetadata = true;
+    });
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
         policy =>
         {
-            policy.WithOrigins("http://localhost:5153", "http://localhost:3000")
+            policy.WithOrigins("https://localhost:7105", "https://localhost:3000")
                   .WithMethods("GET", "POST", "PATCH", "DELETE")
-                  .WithHeaders("Content-Type");
+                  .WithHeaders("Content-Type", "Authorization");
         });
 });
 
@@ -36,6 +55,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
