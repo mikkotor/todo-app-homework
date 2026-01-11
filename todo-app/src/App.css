@@ -18,6 +18,7 @@ h2 {
 input {
   border: none;
   outline-color: lightgray;
+  background-color: rgb(152, 188, 255);
 }
 
 .todoLists {
