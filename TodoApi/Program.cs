@@ -32,7 +32,7 @@ builder.Services.AddAuthentication(options =>
         options.Audience = auth0Audience;
         options.RequireHttpsMetadata = true;
     });
-
+builder.Services.AddAuthorization();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using TodoApi.Models;
 using TodoApi.Services;
+using TodoApi.Filters;
 
 namespace TodoApi.Controllers;
 
@@ -16,6 +17,7 @@ namespace TodoApi.Controllers;
 [ApiController]
 [Route("[controller]")]
 [Authorize]
+[Authenticated]
 public class TodoController(ILogger<TodoController> logger, IDatabaseService db) : ControllerBase
 {
     /// <summary>
@@ -24,11 +26,13 @@ public class TodoController(ILogger<TodoController> logger, IDatabaseService db)
     /// <returns>All todo lists in database or empty enumerable if none are found</returns>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<TodoList>), StatusCodes.Status200OK)]
-    public IEnumerable<TodoList> Get()
+    public ActionResult<IEnumerable<TodoList>> Get()
     {
+        var userId = HttpContext.Items[AuthenticatedAttribute.UserId] as string;
+
         var todos = db.GetTodoLists();
-        logger.LogInformation("Found {Count} todo lists", todos.Count());
-        return todos;
+        logger.LogInformation("User {UserId} found {Count} todo lists", userId, todos.Count());
+        return new ActionResult<IEnumerable<TodoList>>(todos);
     }
 
     /// <summary>
@@ -38,12 +42,14 @@ public class TodoController(ILogger<TodoController> logger, IDatabaseService db)
     /// <returns>Returns the id of the new todo list</returns>
     [HttpPost]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-    public ObjectResult Post(TodoList todos)
+    public ActionResult<int> Post(TodoList todos)
     {
+        var userId = HttpContext.Items[AuthenticatedAttribute.UserId] as string;
+
         if (todos.Id != 0) todos.Id = 0;
         var newTodoListId = db.InsertTodoList(todos);
-        logger.LogInformation("New todo list ADDED with id {Id}", newTodoListId);
-        return new OkObjectResult(newTodoListId);
+        logger.LogInformation("User {UserId} added new todo list with id {Id}", userId, newTodoListId);
+        return new ActionResult<int>(newTodoListId);
     }
 
     /// <summary>
@@ -54,15 +60,17 @@ public class TodoController(ILogger<TodoController> logger, IDatabaseService db)
     [HttpPatch]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public StatusCodeResult Patch(TodoList todos)
+    public ActionResult Patch(TodoList todos)
     {
+        var userId = HttpContext.Items[AuthenticatedAttribute.UserId] as string;
+
         var result = db.UpdateTodoList(todos);
         if (result)
         {
-            logger.LogInformation("Todo list UPDATED with id {Id}", todos.Id);
+            logger.LogInformation("User {UserId} updated todo list with id {Id}", userId, todos.Id);
             return Ok();
         }
-        logger.LogInformation("Todo list with id {Id} NOT FOUND", todos.Id);
+        logger.LogInformation("User {UserId} attempted to update non-existent todo list with id {Id}", userId, todos.Id);
         return new StatusCodeResult(StatusCodes.Status404NotFound);
     }
 
@@ -74,15 +82,17 @@ public class TodoController(ILogger<TodoController> logger, IDatabaseService db)
     [HttpDelete]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public StatusCodeResult Delete(int id)
+    public ActionResult Delete(int id)
     {
+        var userId = HttpContext.Items[AuthenticatedAttribute.UserId] as string;
+
         var result = db.DeleteTodos(id);
         if (result)
         {
-            logger.LogInformation("Todo list DELETED with id {Id}", id);
+            logger.LogInformation("User {UserId} deleted todo list with id {Id}", userId, id);
             return Ok();
         }
-        logger.LogInformation("Todo list with id {Id} NOT FOUND", id);
+        logger.LogInformation("User {UserId} attempted to delete non-existent todo list with id {Id}", userId, id);
         return new StatusCodeResult(StatusCodes.Status404NotFound);
     }
 }

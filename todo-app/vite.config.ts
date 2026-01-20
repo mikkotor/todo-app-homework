@@ -26,10 +26,10 @@ export default defineConfig({
   server: {
     port: 3000,
     https: loadHttps(),
-    // proxy API requests to your .NET backend if needed:
     proxy: {
-      "/api": {
-        target: "http://localhost:5000",
+      // Proxy the Todo path to the local HTTPS backend and allow self-signed certs during dev
+      "/Todo": {
+        target: "https://localhost:7105",
         changeOrigin: true,
         secure: false,
       },
