@@ -26,8 +26,8 @@
 ## Dev machine requirements
 
 * .NET 10
-* Node.js v18
-* NPM v9
+* Node.js v22
+* NPM v10
 
 ## How to run and test
 
