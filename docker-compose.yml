@@ -1,0 +1,28 @@
+services:
+  todoapi:
+    build:
+      context: ./TodoApi
+      dockerfile: Dockerfile
+    container_name: todoapi
+    ports:
+      - "7105:7105"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - default
+
+  todo-app:
+    build:
+      context: ./todo-app
+      dockerfile: Dockerfile
+    container_name: todo-app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - todoapi
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
