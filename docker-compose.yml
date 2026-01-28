@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: todoapi
     ports:
-      - "7105:7105"
+      - "3001:3001"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     networks:

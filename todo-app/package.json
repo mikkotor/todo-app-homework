@@ -19,7 +19,6 @@
   },
   "scripts": {
     "start": "vite",
-    "start:https": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "cypress:open": "cypress open",
