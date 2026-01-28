@@ -1,9 +1,9 @@
 services:
-  todoapi:
+  todo-api:
     build:
       context: ./TodoApi
       dockerfile: Dockerfile
-    container_name: todoapi
+    container_name: todo-api
     ports:
       - "3001:3001"
     environment:
@@ -19,7 +19,7 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - todoapi
+      - todo-api
     networks:
       - default
 
