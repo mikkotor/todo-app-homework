@@ -38,8 +38,8 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
         policy =>
         {
-            policy.WithOrigins("https://localhost:7105", "https://localhost:3000")
-                  .WithMethods("GET", "POST", "PATCH", "DELETE")
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
                   .WithHeaders("Content-Type", "Authorization");
         });
 });
