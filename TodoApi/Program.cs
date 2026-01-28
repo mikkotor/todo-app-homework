@@ -30,7 +30,6 @@ builder.Services.AddAuthentication(options =>
     {
         options.Authority = $"https://{auth0Domain}/";
         options.Audience = auth0Audience;
-        options.RequireHttpsMetadata = true;
     });
 builder.Services.AddAuthorization();
 builder.Services.AddCors(options =>
