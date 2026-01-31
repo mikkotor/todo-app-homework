@@ -3,8 +3,8 @@ export type Todo = {
   isDone: boolean;
 };
 
-export interface TodoList {
-  id: number;
+export type TodoList = {
+  id?: string;
   name: string;
   todos: Todo[];
 };

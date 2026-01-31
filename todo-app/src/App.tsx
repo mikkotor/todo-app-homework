@@ -58,7 +58,11 @@ function App() {
   }
 
   async function onAddNewListClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-    let newTodoList: TodoList = { name: "New list", id: 0, todos: [{ description: "First item", isDone: false }] };
+    let newTodoList: TodoList = {
+      name: "New list",
+      id: undefined,
+      todos: [{ description: "First item", isDone: false }],
+    };
     try {
       const token = isAuthenticated
         ? await getAccessTokenSilently({
@@ -77,20 +81,18 @@ function App() {
 
   async function onDeleteListClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     if (event.currentTarget.parentElement?.parentElement?.id === undefined) return;
-    let databaseId: number = parseInt(event.currentTarget.parentElement.parentElement.id);
+    let databaseId: string = event.currentTarget.parentElement.parentElement.id;
     let modified = [...todoLists];
     var found = modified.findIndex((i) => i.id === databaseId);
     if (found === -1) return;
     modified.splice(found, 1);
     try {
-      if (databaseId !== 0) {
-        const token = isAuthenticated
-          ? await getAccessTokenSilently({
-              authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE as string } as AuthorizationParams,
-            })
-          : undefined;
-        await todoApi.deleteTodoListAsync(databaseId, token);
-      }
+      const token = isAuthenticated
+        ? await getAccessTokenSilently({
+            authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE as string } as AuthorizationParams,
+          })
+        : undefined;
+      await todoApi.deleteTodoListAsync(databaseId, token);
     } catch (apiError: any) {
       logAndSetError(apiError);
       return;
@@ -229,71 +231,72 @@ function App() {
   return (
     <div className="App">
       {isAuthenticated ? (
-        apiError !== "" ? (
-          <>
-            <h1 style={{ color: "red" }}>Error occurred!</h1>
-            <h2>{apiError}</h2>
-            <h3>
-              Please verify that TodoApi is running and reachable in <code>{todoApi.apiUrl}</code>
-            </h3>
-          </>
-        ) : (
-          <>
-            <Profile />
-            <h1>Your Todos:</h1>
-            <ul>
-              {todoLists.map((todoList, listIndex) => (
-                <li key={uuidv4()} id={todoList.id!.toString()}>
-                  <div className="todoLists">
-                    <input
-                      className="todoListName"
-                      type="text"
-                      size={54}
-                      id={`${listIndex}:text`}
-                      defaultValue={todoList.name}
-                      onChange={onTextChange}
-                      onBlur={onTextFocusOut}
-                    />
-                    <button onClick={onDeleteListClick} title="Delete this list">
-                      -
-                    </button>
-                  </div>
-                  <ul>
-                    {todoList.todos.map((todoItem, itemIndex) => (
-                      <li key={uuidv4()}>
-                        <div className="todoItems">
-                          <input
-                            type="checkbox"
-                            id={`${listIndex}:${itemIndex}:checkbox`}
-                            checked={todoItem.isDone}
-                            onChange={onItemDoneChange}
-                            title="Mark as done"
-                          />
-                          <input
-                            style={{ textDecorationLine: todoItem.isDone ? "line-through" : "" }}
-                            disabled={todoItem.isDone}
-                            type="text"
-                            size={50}
-                            id={`${listIndex}:${itemIndex}:text`}
-                            defaultValue={todoItem.description}
-                            onKeyDown={onTodoItemKeyDown}
-                            onChange={onTextChange}
-                            onBlur={onTextFocusOut}
-                          />
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-              <br />
-              <button id="addNewListBtn" onClick={onAddNewListClick} title="Add new list">
-                Add New List
-              </button>
-            </ul>
-            <LogoutButton />
-          </>
-        )
+        <>
+          <Profile />
+          {apiError === "" ? (
+            <>
+              <h1>Your Todos:</h1>
+              <ul>
+                {todoLists.map((todoList, listIndex) => (
+                  <li key={uuidv4()} id={todoList.id!.toString()}>
+                    <div className="todoLists">
+                      <input
+                        className="todoListName"
+                        type="text"
+                        size={54}
+                        id={`${listIndex}:text`}
+                        defaultValue={todoList.name}
+                        onChange={onTextChange}
+                        onBlur={onTextFocusOut}
+                      />
+                      <button onClick={onDeleteListClick} title="Delete this list">
+                        -
+                      </button>
+                    </div>
+                    <ul>
+                      {todoList.todos.map((todoItem, itemIndex) => (
+                        <li key={uuidv4()}>
+                          <div className="todoItems">
+                            <input
+                              type="checkbox"
+                              id={`${listIndex}:${itemIndex}:checkbox`}
+                              checked={todoItem.isDone}
+                              onChange={onItemDoneChange}
+                              title="Mark as done"
+                            />
+                            <input
+                              style={{ textDecorationLine: todoItem.isDone ? "line-through" : "" }}
+                              disabled={todoItem.isDone}
+                              type="text"
+                              size={50}
+                              id={`${listIndex}:${itemIndex}:text`}
+                              defaultValue={todoItem.description}
+                              onKeyDown={onTodoItemKeyDown}
+                              onChange={onTextChange}
+                              onBlur={onTextFocusOut}
+                            />
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+                <br />
+                <button id="addNewListBtn" onClick={onAddNewListClick} title="Add new list">
+                  Add New List
+                </button>
+              </ul>
+            </>
+          ) : (
+            <>
+              <h1 style={{ color: "red" }}>Error occurred!</h1>
+              <h2>{apiError}</h2>
+              <h3>
+                Please verify that TodoApi is running and reachable in <code>{todoApi.apiBaseUrl}</code>
+              </h3>
+            </>
+          )}
+        </>
       ) : (
         <div className="action-card">
           <p className="action-text">Get started by signing in to your account</p>

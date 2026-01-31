@@ -13,7 +13,10 @@ public sealed class AuthenticatedAttribute : Attribute, IAsyncActionFilter
 {
     public const string UserId = "UserId";
 
-    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    public async Task OnActionExecutionAsync(
+        ActionExecutingContext context,
+        ActionExecutionDelegate next
+    )
     {
         var http = context.HttpContext;
 
@@ -23,6 +26,7 @@ public sealed class AuthenticatedAttribute : Attribute, IAsyncActionFilter
         {
             context.Result = new UnauthorizedResult();
             return;
+            // id = "auth0|0000000000000000000000";
         }
 
         http.Items[UserId] = id;

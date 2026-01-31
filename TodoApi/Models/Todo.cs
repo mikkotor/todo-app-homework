@@ -6,9 +6,15 @@ namespace TodoApi.Models;
 public record Todo
 {
     /// <summary>
+    /// Unique identifier for the todo item.
+    /// </summary>
+    public Guid Id { get; set; }
+
+    /// <summary>
     /// Description of the todo item.
     /// </summary>
     public string Description { get; set; } = "";
+
     /// <summary>
     /// Indicates whether the todo item is completed.
     /// </summary>
@@ -23,13 +29,20 @@ public record TodoList
     /// <summary>
     /// Unique identifier for the todo list.
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
+
     /// <summary>
     /// Name of the todo list.
     /// </summary>
     public string Name { get; set; } = "";
+
     /// <summary>
     /// Collection of todo items in the list.
     /// </summary>
     public List<Todo>? Todos { get; set; } = [];
+
+    /// <summary>
+    /// Identifier of the user who owns the todo list.
+    /// </summary>
+    public string UserId { get; set; } = "";
 }

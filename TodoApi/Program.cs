@@ -1,6 +1,8 @@
 using System.Reflection;
-using TodoApi.Services;
+using Marten;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using TodoApi.Events;
+using TodoApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +15,20 @@ builder.Services.AddSwaggerGen(c =>
     c.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
 });
 
-builder.Services.AddSingleton<IDatabaseService, LiteDbService>();
+builder
+    .Services.AddMarten(options =>
+    {
+        var connectionString = builder.Configuration.GetConnectionString("MartenConnection");
+        options.Connection(connectionString!);
+        options.DatabaseSchemaName = "public";
+        options.AutoCreateSchemaObjects = JasperFx.AutoCreate.All;
+
+        options.Events.AddEventType<TodoListCreated>();
+        options.Events.AddEventType<TodoListUpdated>();
+        options.Events.AddEventType<TodoListDeleted>();
+    })
+    .UseLightweightSessions();
+builder.Services.AddScoped<IDatabaseServiceAsync, MartenDbService>();
 
 // Load Auth0 settings
 var auth0Section = builder.Configuration.GetSection("Auth0");
@@ -21,11 +36,12 @@ var auth0Domain = auth0Section.GetValue<string>("Domain");
 var auth0Audience = auth0Section.GetValue<string>("Audience");
 
 // Configure authentication using JWT Bearer (Auth0)
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
+builder
+    .Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
     .AddJwtBearer(options =>
     {
         options.Authority = $"https://{auth0Domain}/";
@@ -34,13 +50,10 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(
-        policy =>
-        {
-            policy.AllowAnyOrigin()
-                  .AllowAnyMethod()
-                  .WithHeaders("Content-Type", "Authorization");
-        });
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin().AllowAnyMethod().WithHeaders("Content-Type", "Authorization");
+    });
 });
 
 var app = builder.Build();
