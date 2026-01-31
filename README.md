@@ -11,7 +11,7 @@
 ### TodoApi
 
 * Implemented in .NET 10, as an ASP.NET API
-* Database of choice is [LiteDB](https://www.litedb.org/)
+* Database of choice is [MartenDB](https://martendb.io/) which uses PostgreSQL as it's backend
 * The API also has Swagger endpoint running providing a simple OpenAPI spec frontend for quick interaction with the API and underlying DB
 * Tests implemented using [xUnit](https://xunit.net/) and [Moq](https://github.com/Moq)
 
